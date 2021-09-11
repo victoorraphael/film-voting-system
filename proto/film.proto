@@ -1,0 +1,66 @@
+syntax = "proto3";
+
+package film;
+
+option go_package = "./;filmpb";
+
+message Film {
+  string id = 1;
+  string name = 2;
+  int64 upvotes = 3;
+  int64 downvotes = 4;
+  int64 score = 5;
+}
+
+message CreateFilmMessage {
+  Film film = 1;
+}
+
+message CreateFilmResponse {
+  Film film = 1;
+}
+
+message GetFilmMessage {}
+
+message GetFilmResponse {
+  Film film = 1;
+}
+
+message UpvoteFilmMessage {
+  string id = 1;
+}
+
+message UpvoteFilmResponse {
+  bool success = 1;
+}
+
+message DownvoteFilmMessage {
+  string id = 1;
+}
+
+message DownvoteFilmResponse {
+  bool success = 1;
+}
+
+message DeleteFilmMessage {
+  string id = 1;
+}
+
+message DeleteFilmResponse {
+  bool success = 1;
+}
+
+message ListFilmMessage {}
+
+message ListFilmResponse {
+  Film film = 1;
+}
+
+service FilmService {
+  rpc CreateFilm(CreateFilmMessage) returns (CreateFilmResponse);
+  rpc GetFilm(GetFilmMessage) returns (GetFilmResponse);
+  rpc UpvoteFilm(UpvoteFilmMessage) returns (UpvoteFilmResponse);
+  rpc DownvoteFilm(DownvoteFilmMessage) returns (DownvoteFilmResponse);
+  rpc DeleteFilm(DeleteFilmMessage) returns (DeleteFilmResponse);
+  rpc ListFilm(ListFilmMessage) returns (stream ListFilmResponse);
+}
