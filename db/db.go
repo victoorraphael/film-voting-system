@@ -10,7 +10,7 @@ import (
 )
 
 var client *mongo.Client
-var db *mongo.Database
+var db *mongo.Collection
 var mongoCtx context.Context
 
 func GetContext() context.Context {
@@ -22,24 +22,29 @@ func Disconnect() {
 	client.Disconnect(mongoCtx)
 }
 
-func Connect() {
+func GetCollection() *mongo.Collection {
+	return db
+}
+
+func Connect() error {
 	log.Println("starting database connection ...")
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("DBCN")))
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	mongoCtx = context.Background()
 	err = client.Connect(mongoCtx)
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
 	err = client.Ping(mongoCtx, readpref.Primary())
 	if err != nil {
-		log.Fatal(err)
+		return err
 	}
 
-	db = client.Database("film-voting")
+	db = client.Database("film-voting").Collection("rank")
 	log.Println("database successfully connected !")
+	return nil
 }
