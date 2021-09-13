@@ -22,6 +22,10 @@ func Disconnect() {
 	client.Disconnect(mongoCtx)
 }
 
+func GetCollection() *mongo.Collection {
+	return db
+}
+
 func Connect() error {
 	log.Println("starting database connection ...")
 	client, err := mongo.NewClient(options.Client().ApplyURI(os.Getenv("DBCN")))
