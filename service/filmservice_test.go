@@ -1,9 +1,10 @@
-package filmpb
+package service
 
 import (
 	"context"
 	"github.com/stretchr/testify/assert"
 	"github.com/victoorraphael/film-voting-system/db"
+	filmpb "github.com/victoorraphael/film-voting-system/proto"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/test/bufconn"
 	"log"
@@ -32,7 +33,7 @@ func init() {
 	lis = bufconn.Listen(bufSize)
 	s := grpc.NewServer()
 
-	RegisterFilmServiceServer(s, &fs)
+	filmpb.RegisterFilmServiceServer(s, &fs)
 
 	log.Println("serving grpc service ...")
 	go func() {
@@ -56,9 +57,9 @@ func TestInputFilm(t *testing.T) {
 
 	defer conn.Close()
 
-	client := NewFilmServiceClient(conn)
+	client := filmpb.NewFilmServiceClient(conn)
 
-	film := Film{
+	film := filmpb.Film{
 		Name:      "teste" + time.Now().String(),
 		Upvotes:   0,
 		Downvotes: 0,
@@ -66,7 +67,7 @@ func TestInputFilm(t *testing.T) {
 	}
 
 	log.Println("calling CreateMessage service ...")
-	req := CreateFilmMessage{Film: &film}
+	req := filmpb.CreateFilmMessage{Film: &film}
 
 	resp, err := client.CreateFilm(ctx, &req)
 	if err != nil {
@@ -88,9 +89,9 @@ func TestGetFilm(t *testing.T) {
 
 	defer conn.Close()
 
-	client := NewFilmServiceClient(conn)
+	client := filmpb.NewFilmServiceClient(conn)
 
-	filmMock := Film{
+	filmMock := filmpb.Film{
 		Id:        "613f75f24c15bc7b7d4f6404",
 		Name:      "teste1",
 		Upvotes:   0,
@@ -98,7 +99,7 @@ func TestGetFilm(t *testing.T) {
 		Score:     0,
 	}
 
-	req := GetFilmMessage{Id: "613f75f24c15bc7b7d4f6404"}
+	req := filmpb.GetFilmMessage{Id: "613f75f24c15bc7b7d4f6404"}
 	res, err := client.GetFilm(ctx, &req)
 	if err != nil {
 		t.Fatalf("Failed to GetFilm: %v", err)

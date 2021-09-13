@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/gommon/log"
 	"github.com/victoorraphael/film-voting-system/db"
 	filmpb "github.com/victoorraphael/film-voting-system/proto"
+	"github.com/victoorraphael/film-voting-system/service"
 	"google.golang.org/grpc"
 	"net"
 )
@@ -21,7 +22,7 @@ func main() {
 	collection := db.GetCollection("rank")
 	dbCtx := db.GetContext()
 
-	s := filmpb.FilmServer{Collection: collection, DbCtx: dbCtx}
+	s := service.FilmServer{Collection: collection, DbCtx: dbCtx}
 
 	grpcServer := grpc.NewServer()
 

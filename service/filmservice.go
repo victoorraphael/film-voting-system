@@ -1,9 +1,10 @@
-package filmpb
+package service
 
 import (
 	"context"
 	"fmt"
 	"github.com/victoorraphael/film-voting-system/models"
+	filmpb "github.com/victoorraphael/film-voting-system/proto"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
@@ -14,15 +15,16 @@ import (
 type FilmServer struct {
 	Collection *mongo.Collection
 	DbCtx      context.Context
+	filmpb.UnimplementedFilmServiceServer
 }
 
 func (f *FilmServer) mustEmbedUnimplementedFilmServiceServer() {}
 
-func (f *FilmServer) CreateFilm(_ context.Context, message *CreateFilmMessage) (*CreateFilmResponse, error) {
+func (f *FilmServer) CreateFilm(_ context.Context, message *filmpb.CreateFilmMessage) (*filmpb.CreateFilmResponse, error) {
 
 	film := message.GetFilm()
 
-	data := Film{
+	data := filmpb.Film{
 		Name:      film.GetName(),
 		Upvotes:   film.GetUpvotes(),
 		Downvotes: film.GetDownvotes(),
@@ -41,10 +43,10 @@ func (f *FilmServer) CreateFilm(_ context.Context, message *CreateFilmMessage) (
 
 	film.Id = oid.Hex()
 
-	return &CreateFilmResponse{Film: film}, nil
+	return &filmpb.CreateFilmResponse{Film: film}, nil
 }
 
-func (f *FilmServer) GetFilm(ctx context.Context, message *GetFilmMessage) (*GetFilmResponse, error) {
+func (f *FilmServer) GetFilm(ctx context.Context, message *filmpb.GetFilmMessage) (*filmpb.GetFilmResponse, error) {
 	oid, err := primitive.ObjectIDFromHex(message.Id)
 	if err != nil {
 		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Error to convert ObjectId: %v", err))
@@ -57,7 +59,7 @@ func (f *FilmServer) GetFilm(ctx context.Context, message *GetFilmMessage) (*Get
 		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Could not find film with ObjectId %s: %v", message.Id, err))
 	}
 
-	film := Film{
+	film := filmpb.Film{
 		Id:        oid.Hex(),
 		Name:      data.Name,
 		Upvotes:   data.Upvotes,
@@ -65,23 +67,23 @@ func (f *FilmServer) GetFilm(ctx context.Context, message *GetFilmMessage) (*Get
 		Score:     data.Score,
 	}
 
-	response := GetFilmResponse{Film: &film}
+	response := filmpb.GetFilmResponse{Film: &film}
 
 	return &response, nil
 }
 
-func (f *FilmServer) UpvoteFilm(_ context.Context, message *UpvoteFilmMessage) (*UpvoteFilmResponse, error) {
+func (f *FilmServer) UpvoteFilm(_ context.Context, message *filmpb.UpvoteFilmMessage) (*filmpb.UpvoteFilmResponse, error) {
 	panic("implement me")
 }
 
-func (f *FilmServer) DownvoteFilm(_ context.Context, message *DownvoteFilmMessage) (*DownvoteFilmResponse, error) {
+func (f *FilmServer) DownvoteFilm(_ context.Context, message *filmpb.DownvoteFilmMessage) (*filmpb.DownvoteFilmResponse, error) {
 	panic("implement me")
 }
 
-func (f *FilmServer) DeleteFilm(_ context.Context, message *DeleteFilmMessage) (*DeleteFilmResponse, error) {
+func (f *FilmServer) DeleteFilm(_ context.Context, message *filmpb.DeleteFilmMessage) (*filmpb.DeleteFilmResponse, error) {
 	panic("implement me")
 }
 
-func (f *FilmServer) ListFilm(message *ListFilmMessage, server FilmService_ListFilmServer) error {
+func (f *FilmServer) ListFilm(message *filmpb.ListFilmMessage, server filmpb.FilmService_ListFilmServer) error {
 	panic("implement me")
 }
