@@ -14,9 +14,9 @@ type FilmServer struct {
 	DbCtx      context.Context
 }
 
-func (s *FilmServer) mustEmbedUnimplementedFilmServiceServer() {}
+func (f *FilmServer) mustEmbedUnimplementedFilmServiceServer() {}
 
-func (s *FilmServer) CreateFilm(_ context.Context, message *CreateFilmMessage) (*CreateFilmResponse, error) {
+func (f *FilmServer) CreateFilm(_ context.Context, message *CreateFilmMessage) (*CreateFilmResponse, error) {
 
 	film := message.GetFilm()
 
@@ -27,7 +27,7 @@ func (s *FilmServer) CreateFilm(_ context.Context, message *CreateFilmMessage) (
 		Score:     film.GetScore(),
 	}
 
-	result, err := s.Collection.InsertOne(s.DbCtx, data)
+	result, err := f.Collection.InsertOne(f.DbCtx, data)
 
 	if err != nil {
 		return nil, status.Errorf(
