@@ -48,7 +48,6 @@ func bufDialer(context.Context, string) (net.Conn, error) {
 }
 
 func TestInputFilm(t *testing.T) {
-	log.Println("initializing create film test ...")
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
@@ -66,7 +65,6 @@ func TestInputFilm(t *testing.T) {
 		Score:     0,
 	}
 
-	log.Println("calling CreateMessage service ...")
 	req := filmpb.CreateFilmMessage{Film: &film}
 
 	resp, err := client.CreateFilm(ctx, &req)
@@ -74,13 +72,10 @@ func TestInputFilm(t *testing.T) {
 		t.Fatalf("CreateFilm failed: %v", err)
 	}
 
-	log.Printf("Response: %v", resp)
-
 	assert.Equal(t, resp.Film.Name, film.Name)
 }
 
 func TestGetFilm(t *testing.T) {
-	log.Println("initializing get film test ...")
 	ctx := context.Background()
 	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
 	if err != nil {
@@ -94,9 +89,9 @@ func TestGetFilm(t *testing.T) {
 	filmMock := filmpb.Film{
 		Id:        "613f75f24c15bc7b7d4f6404",
 		Name:      "teste1",
-		Upvotes:   0,
-		Downvotes: 0,
-		Score:     0,
+		Upvotes:   2,
+		Downvotes: 1,
+		Score:     1,
 	}
 
 	req := filmpb.GetFilmMessage{Id: "613f75f24c15bc7b7d4f6404"}
@@ -105,11 +100,51 @@ func TestGetFilm(t *testing.T) {
 		t.Fatalf("Failed to GetFilm: %v", err)
 	}
 
-	log.Printf("Response: %v", res)
-
 	assert.Equal(t, res.Film.Id, filmMock.Id)
 	assert.Equal(t, res.Film.Name, filmMock.Name)
 	assert.Equal(t, res.Film.Upvotes, filmMock.Upvotes)
 	assert.Equal(t, res.Film.Downvotes, filmMock.Downvotes)
 	assert.Equal(t, res.Film.Score, filmMock.Score)
+}
+
+func TestUpvoteFilm(t *testing.T) {
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	if err != nil {
+		t.Fatalf("Failed to dial bufnet: %v", err)
+	}
+
+	defer conn.Close()
+
+	client := filmpb.NewFilmServiceClient(conn)
+
+	filmMock := filmpb.UpvoteFilmMessage{Id: "613fa8c79cd243857a44a5bb"}
+
+	res, err := client.UpvoteFilm(ctx, &filmMock)
+	if err != nil {
+		t.Fatalf("Failed to Upvote film: %v", err)
+	}
+
+	assert.Equal(t, res.Success, true)
+}
+
+func TestDownvoteFilm(t *testing.T) {
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	if err != nil {
+		t.Fatalf("Failed to dial bufnet: %v", err)
+	}
+
+	defer conn.Close()
+
+	client := filmpb.NewFilmServiceClient(conn)
+
+	filmMock := filmpb.DownvoteFilmMessage{Id: "613fa8c79cd243857a44a5bb"}
+
+	res, err := client.DownvoteFilm(ctx, &filmMock)
+	if err != nil {
+		t.Fatalf("Failed to Upvote film: %v", err)
+	}
+
+	assert.Equal(t, res.Success, true)
 }
