@@ -119,6 +119,35 @@ func (f *FilmServer) DeleteFilm(ctx context.Context, message *filmpb.DeleteFilmM
 	return &filmpb.DeleteFilmResponse{Success: true}, nil
 }
 
-func (f *FilmServer) ListFilm(message *filmpb.ListFilmMessage, server filmpb.FilmService_ListFilmServer) error {
-	panic("implement me")
+func (f *FilmServer) ListFilm(message *filmpb.ListFilmMessage, stream filmpb.FilmService_ListFilmServer) error {
+	data := &models.Film{}
+
+	films, err := f.Collection.Find(context.Background(), bson.M{})
+	if err != nil {
+		return status.Errorf(codes.Internal, fmt.Sprintf("Internal error: %v", err))
+	}
+
+	defer films.Close(context.Background())
+
+	for films.Next(context.Background()) {
+		err := films.Decode(data)
+
+		if err != nil {
+			return status.Errorf(codes.Unavailable, fmt.Sprintf("Error to decode data: %v", err))
+		}
+
+		stream.Send(&filmpb.ListFilmResponse{Film: &filmpb.Film{
+			Id:        data.ID.Hex(),
+			Name:      data.Name,
+			Upvotes:   data.Upvotes,
+			Downvotes: data.Downvotes,
+			Score:     data.Score,
+		}})
+	}
+
+	if err := films.Err(); err != nil {
+		return status.Errorf(codes.Internal, fmt.Sprintf("Unknow internal error: %v", err))
+	}
+
+	return nil
 }
