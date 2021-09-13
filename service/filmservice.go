@@ -8,6 +8,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -72,12 +73,36 @@ func (f *FilmServer) GetFilm(ctx context.Context, message *filmpb.GetFilmMessage
 	return &response, nil
 }
 
-func (f *FilmServer) UpvoteFilm(_ context.Context, message *filmpb.UpvoteFilmMessage) (*filmpb.UpvoteFilmResponse, error) {
-	panic("implement me")
+func (f *FilmServer) UpvoteFilm(ctx context.Context, message *filmpb.UpvoteFilmMessage) (*filmpb.UpvoteFilmResponse, error) {
+	oid, err := primitive.ObjectIDFromHex(message.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Error to convert ObjectId: %v", err))
+	}
+
+	filter := bson.M{"_id": oid}
+
+	_, err = f.Collection.UpdateOne(ctx, filter, bson.M{"$inc": bson.M{"upvotes": 1, "score": 1}}, options.Update().SetUpsert(true))
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Could not find film with ObjectId %s: %v", message.GetId(), err))
+	}
+
+	return &filmpb.UpvoteFilmResponse{Success: true}, nil
 }
 
-func (f *FilmServer) DownvoteFilm(_ context.Context, message *filmpb.DownvoteFilmMessage) (*filmpb.DownvoteFilmResponse, error) {
-	panic("implement me")
+func (f *FilmServer) DownvoteFilm(ctx context.Context, message *filmpb.DownvoteFilmMessage) (*filmpb.DownvoteFilmResponse, error) {
+	oid, err := primitive.ObjectIDFromHex(message.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Error to convert ObjectId: %v", err))
+	}
+
+	filter := bson.M{"_id": oid}
+
+	_, err = f.Collection.UpdateOne(ctx, filter, bson.M{"$inc": bson.M{"downvotes": 1, "score": -1}}, options.Update().SetUpsert(true))
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Could not find film with ObjectId %s: %v", message.GetId(), err))
+	}
+
+	return &filmpb.DownvoteFilmResponse{Success: true}, nil
 }
 
 func (f *FilmServer) DeleteFilm(_ context.Context, message *filmpb.DeleteFilmMessage) (*filmpb.DeleteFilmResponse, error) {
