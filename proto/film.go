@@ -29,7 +29,7 @@ func (f *FilmServer) CreateFilm(_ context.Context, message *CreateFilmMessage) (
 		Score:     film.GetScore(),
 	}
 
-	result, err := f.Collection.InsertOne(f.DbCtx, data)
+	result, err := f.Collection.InsertOne(f.DbCtx, &data)
 
 	if err != nil {
 		return nil, status.Errorf(
