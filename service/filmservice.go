@@ -105,8 +105,18 @@ func (f *FilmServer) DownvoteFilm(ctx context.Context, message *filmpb.DownvoteF
 	return &filmpb.DownvoteFilmResponse{Success: true}, nil
 }
 
-func (f *FilmServer) DeleteFilm(_ context.Context, message *filmpb.DeleteFilmMessage) (*filmpb.DeleteFilmResponse, error) {
-	panic("implement me")
+func (f *FilmServer) DeleteFilm(ctx context.Context, message *filmpb.DeleteFilmMessage) (*filmpb.DeleteFilmResponse, error) {
+	oid, err := primitive.ObjectIDFromHex(message.GetId())
+	if err != nil {
+		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Error to convert ObjectId: %v", err))
+	}
+
+	_, err = f.Collection.DeleteOne(ctx, bson.M{"_id": oid})
+	if err != nil {
+		return nil, status.Errorf(codes.NotFound, fmt.Sprintf("Could not find film with ObjectId: %v", err))
+	}
+
+	return &filmpb.DeleteFilmResponse{Success: true}, nil
 }
 
 func (f *FilmServer) ListFilm(message *filmpb.ListFilmMessage, server filmpb.FilmService_ListFilmServer) error {
