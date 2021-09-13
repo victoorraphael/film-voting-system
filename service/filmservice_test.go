@@ -148,3 +148,24 @@ func TestDownvoteFilm(t *testing.T) {
 
 	assert.Equal(t, res.Success, true)
 }
+
+func TestDeleteFilm(t *testing.T) {
+	ctx := context.Background()
+	conn, err := grpc.DialContext(ctx, "bufnet", grpc.WithContextDialer(bufDialer), grpc.WithInsecure())
+	if err != nil {
+		t.Fatalf("Failed to dial bufnet: %v", err)
+	}
+
+	defer conn.Close()
+
+	client := filmpb.NewFilmServiceClient(conn)
+
+	filmMock := filmpb.DeleteFilmMessage{Id: "613fbb0b248bd805626c8821"}
+
+	res, err := client.DeleteFilm(ctx, &filmMock)
+	if err != nil {
+		t.Fatalf("Failed to Delete film: %v", err)
+	}
+
+	assert.Equal(t, res.Success, true)
+}
