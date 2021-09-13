@@ -29,8 +29,61 @@ func main() {
 	r := e.Group("/film")
 
 	r.POST("/", createFilm)
+	r.GET("/", listFilm)
+	r.GET("/:id/", getFilmById)
+	r.DELETE("/:id/", deleteFilm)
+	r.POST("/upvote/:id/", upvoteFilm)
+	r.POST("/downvote/:id/", downvoteFilm)
 
 	e.Logger.Fatal(e.Start(":4000"))
+}
+
+func downvoteFilm(c echo.Context) error {
+	uid := c.Param("id")
+
+	message := filmpb.DownvoteFilmMessage{Id: uid}
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+
+	defer cancel()
+
+	res, err := filmClient.DownvoteFilm(ctx, &message)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+func upvoteFilm(c echo.Context) error {
+	uid := c.Param("id")
+
+	message := filmpb.UpvoteFilmMessage{Id: uid}
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+
+	defer cancel()
+
+	res, err := filmClient.UpvoteFilm(ctx, &message)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, res)
+}
+
+func deleteFilm(c echo.Context) error {
+	return nil
+}
+
+func getFilmById(c echo.Context) error {
+	return nil
+}
+
+func listFilm(c echo.Context) error {
+	return nil
 }
 
 func createFilm(c echo.Context) error {
