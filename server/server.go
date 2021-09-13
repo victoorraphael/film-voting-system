@@ -18,7 +18,7 @@ func main() {
 		log.Fatalf("Failed to connect database: %v", err)
 	}
 
-	collection := db.GetCollection()
+	collection := db.GetCollection("rank")
 	dbCtx := db.GetContext()
 
 	s := filmpb.FilmServer{Collection: collection, DbCtx: dbCtx}

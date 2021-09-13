@@ -10,7 +10,7 @@ import (
 )
 
 var client *mongo.Client
-var db *mongo.Collection
+var db *mongo.Database
 var mongoCtx context.Context
 
 func GetContext() context.Context {
@@ -22,8 +22,8 @@ func Disconnect() {
 	client.Disconnect(mongoCtx)
 }
 
-func GetCollection() *mongo.Collection {
-	return db
+func GetCollection(collection string) *mongo.Collection {
+	return db.Collection(collection)
 }
 
 func Connect() error {
@@ -44,7 +44,7 @@ func Connect() error {
 		return err
 	}
 
-	db = client.Database("film-voting").Collection("rank")
+	db = client.Database("film-voting")
 	log.Println("database successfully connected !")
 	return nil
 }
