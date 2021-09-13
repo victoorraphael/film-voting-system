@@ -75,11 +75,39 @@ func upvoteFilm(c echo.Context) error {
 }
 
 func deleteFilm(c echo.Context) error {
-	return nil
+	uid := c.Param("id")
+
+	message := filmpb.DeleteFilmMessage{Id: uid}
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+
+	defer cancel()
+
+	res, err := filmClient.DeleteFilm(ctx, &message)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
 
 func getFilmById(c echo.Context) error {
-	return nil
+	uid := c.Param("id")
+
+	message := filmpb.GetFilmMessage{Id: uid}
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+
+	defer cancel()
+
+	res, err := filmClient.GetFilm(ctx, &message)
+
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	return c.JSON(http.StatusOK, res)
 }
 
 func listFilm(c echo.Context) error {
