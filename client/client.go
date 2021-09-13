@@ -6,6 +6,7 @@ import (
 	_ "github.com/victoorraphael/film-voting-system/models"
 	filmpb "github.com/victoorraphael/film-voting-system/proto"
 	"google.golang.org/grpc"
+	"io"
 	"log"
 	"net/http"
 	"time"
@@ -111,7 +112,37 @@ func getFilmById(c echo.Context) error {
 }
 
 func listFilm(c echo.Context) error {
-	return nil
+	film := filmpb.ListFilmMessage{}
+
+	ctx, cancel := context.WithDeadline(context.Background(), time.Now().Add(5*time.Second))
+
+	defer cancel()
+
+	stream, err := filmClient.ListFilm(ctx, &film)
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, map[string]string{"error": err.Error()})
+	}
+
+	var response []*filmpb.Film
+
+	for {
+		res, err := stream.Recv()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, map[string]string{"error": err.Error()})
+		}
+
+		response = append(
+			response,
+			res.GetFilm(),
+		)
+	}
+
+	return c.JSON(http.StatusOK, response)
 }
 
 func createFilm(c echo.Context) error {
