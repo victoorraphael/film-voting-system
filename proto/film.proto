@@ -19,48 +19,48 @@ message CreateFilmMessage {
 message CreateFilmResponse {
   Film film = 1;
 }
-//
-//message GetFilmMessage {}
-//
-//message GetFilmResponse {
-//  Film film = 1;
-//}
-//
-//message UpvoteFilmMessage {
-//  string id = 1;
-//}
-//
-//message UpvoteFilmResponse {
-//  bool success = 1;
-//}
-//
-//message DownvoteFilmMessage {
-//  string id = 1;
-//}
-//
-//message DownvoteFilmResponse {
-//  bool success = 1;
-//}
-//
-//message DeleteFilmMessage {
-//  string id = 1;
-//}
-//
-//message DeleteFilmResponse {
-//  bool success = 1;
-//}
-//
-//message ListFilmMessage {}
-//
-//message ListFilmResponse {
-//  Film film = 1;
-//}
+
+message GetFilmMessage {}
+
+message GetFilmResponse {
+  Film film = 1;
+}
+
+message UpvoteFilmMessage {
+  string id = 1;
+}
+
+message UpvoteFilmResponse {
+  bool success = 1;
+}
+
+message DownvoteFilmMessage {
+  string id = 1;
+}
+
+message DownvoteFilmResponse {
+  bool success = 1;
+}
+
+message DeleteFilmMessage {
+  string id = 1;
+}
+
+message DeleteFilmResponse {
+  bool success = 1;
+}
+
+message ListFilmMessage {}
+
+message ListFilmResponse {
+  Film film = 1;
+}
 
 service FilmService {
   rpc CreateFilm(CreateFilmMessage) returns (CreateFilmResponse);
-//  rpc GetFilm(GetFilmMessage) returns (GetFilmResponse);
-//  rpc UpvoteFilm(UpvoteFilmMessage) returns (UpvoteFilmResponse);
-//  rpc DownvoteFilm(DownvoteFilmMessage) returns (DownvoteFilmResponse);
-//  rpc DeleteFilm(DeleteFilmMessage) returns (DeleteFilmResponse);
-//  rpc ListFilm(ListFilmMessage) returns (stream ListFilmResponse);
+  rpc GetFilm(GetFilmMessage) returns (GetFilmResponse);
+  rpc UpvoteFilm(UpvoteFilmMessage) returns (UpvoteFilmResponse);
+  rpc DownvoteFilm(DownvoteFilmMessage) returns (DownvoteFilmResponse);
+  rpc DeleteFilm(DeleteFilmMessage) returns (DeleteFilmResponse);
+  rpc ListFilm(ListFilmMessage) returns (stream ListFilmResponse);
 }

@@ -23,6 +23,11 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type FilmServiceClient interface {
 	CreateFilm(ctx context.Context, in *CreateFilmMessage, opts ...grpc.CallOption) (*CreateFilmResponse, error)
+	GetFilm(ctx context.Context, in *GetFilmMessage, opts ...grpc.CallOption) (*GetFilmResponse, error)
+	UpvoteFilm(ctx context.Context, in *UpvoteFilmMessage, opts ...grpc.CallOption) (*UpvoteFilmResponse, error)
+	DownvoteFilm(ctx context.Context, in *DownvoteFilmMessage, opts ...grpc.CallOption) (*DownvoteFilmResponse, error)
+	DeleteFilm(ctx context.Context, in *DeleteFilmMessage, opts ...grpc.CallOption) (*DeleteFilmResponse, error)
+	ListFilm(ctx context.Context, in *ListFilmMessage, opts ...grpc.CallOption) (FilmService_ListFilmClient, error)
 }
 
 type filmServiceClient struct {
@@ -42,11 +47,84 @@ func (c *filmServiceClient) CreateFilm(ctx context.Context, in *CreateFilmMessag
 	return out, nil
 }
 
+func (c *filmServiceClient) GetFilm(ctx context.Context, in *GetFilmMessage, opts ...grpc.CallOption) (*GetFilmResponse, error) {
+	out := new(GetFilmResponse)
+	err := c.cc.Invoke(ctx, "/film.FilmService/GetFilm", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filmServiceClient) UpvoteFilm(ctx context.Context, in *UpvoteFilmMessage, opts ...grpc.CallOption) (*UpvoteFilmResponse, error) {
+	out := new(UpvoteFilmResponse)
+	err := c.cc.Invoke(ctx, "/film.FilmService/UpvoteFilm", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filmServiceClient) DownvoteFilm(ctx context.Context, in *DownvoteFilmMessage, opts ...grpc.CallOption) (*DownvoteFilmResponse, error) {
+	out := new(DownvoteFilmResponse)
+	err := c.cc.Invoke(ctx, "/film.FilmService/DownvoteFilm", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filmServiceClient) DeleteFilm(ctx context.Context, in *DeleteFilmMessage, opts ...grpc.CallOption) (*DeleteFilmResponse, error) {
+	out := new(DeleteFilmResponse)
+	err := c.cc.Invoke(ctx, "/film.FilmService/DeleteFilm", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *filmServiceClient) ListFilm(ctx context.Context, in *ListFilmMessage, opts ...grpc.CallOption) (FilmService_ListFilmClient, error) {
+	stream, err := c.cc.NewStream(ctx, &FilmService_ServiceDesc.Streams[0], "/film.FilmService/ListFilm", opts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &filmServiceListFilmClient{stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+type FilmService_ListFilmClient interface {
+	Recv() (*ListFilmResponse, error)
+	grpc.ClientStream
+}
+
+type filmServiceListFilmClient struct {
+	grpc.ClientStream
+}
+
+func (x *filmServiceListFilmClient) Recv() (*ListFilmResponse, error) {
+	m := new(ListFilmResponse)
+	if err := x.ClientStream.RecvMsg(m); err != nil {
+		return nil, err
+	}
+	return m, nil
+}
+
 // FilmServiceServer is the server API for FilmService service.
 // All implementations must embed UnimplementedFilmServiceServer
 // for forward compatibility
 type FilmServiceServer interface {
 	CreateFilm(context.Context, *CreateFilmMessage) (*CreateFilmResponse, error)
+	GetFilm(context.Context, *GetFilmMessage) (*GetFilmResponse, error)
+	UpvoteFilm(context.Context, *UpvoteFilmMessage) (*UpvoteFilmResponse, error)
+	DownvoteFilm(context.Context, *DownvoteFilmMessage) (*DownvoteFilmResponse, error)
+	DeleteFilm(context.Context, *DeleteFilmMessage) (*DeleteFilmResponse, error)
+	ListFilm(*ListFilmMessage, FilmService_ListFilmServer) error
 	mustEmbedUnimplementedFilmServiceServer()
 }
 
@@ -56,6 +134,21 @@ type UnimplementedFilmServiceServer struct {
 
 func (UnimplementedFilmServiceServer) CreateFilm(context.Context, *CreateFilmMessage) (*CreateFilmResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateFilm not implemented")
+}
+func (UnimplementedFilmServiceServer) GetFilm(context.Context, *GetFilmMessage) (*GetFilmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetFilm not implemented")
+}
+func (UnimplementedFilmServiceServer) UpvoteFilm(context.Context, *UpvoteFilmMessage) (*UpvoteFilmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpvoteFilm not implemented")
+}
+func (UnimplementedFilmServiceServer) DownvoteFilm(context.Context, *DownvoteFilmMessage) (*DownvoteFilmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DownvoteFilm not implemented")
+}
+func (UnimplementedFilmServiceServer) DeleteFilm(context.Context, *DeleteFilmMessage) (*DeleteFilmResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteFilm not implemented")
+}
+func (UnimplementedFilmServiceServer) ListFilm(*ListFilmMessage, FilmService_ListFilmServer) error {
+	return status.Errorf(codes.Unimplemented, "method ListFilm not implemented")
 }
 func (UnimplementedFilmServiceServer) mustEmbedUnimplementedFilmServiceServer() {}
 
@@ -88,6 +181,99 @@ func _FilmService_CreateFilm_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _FilmService_GetFilm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetFilmMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServiceServer).GetFilm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/film.FilmService/GetFilm",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServiceServer).GetFilm(ctx, req.(*GetFilmMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FilmService_UpvoteFilm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpvoteFilmMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServiceServer).UpvoteFilm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/film.FilmService/UpvoteFilm",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServiceServer).UpvoteFilm(ctx, req.(*UpvoteFilmMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FilmService_DownvoteFilm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DownvoteFilmMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServiceServer).DownvoteFilm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/film.FilmService/DownvoteFilm",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServiceServer).DownvoteFilm(ctx, req.(*DownvoteFilmMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FilmService_DeleteFilm_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteFilmMessage)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(FilmServiceServer).DeleteFilm(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/film.FilmService/DeleteFilm",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(FilmServiceServer).DeleteFilm(ctx, req.(*DeleteFilmMessage))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _FilmService_ListFilm_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ListFilmMessage)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(FilmServiceServer).ListFilm(m, &filmServiceListFilmServer{stream})
+}
+
+type FilmService_ListFilmServer interface {
+	Send(*ListFilmResponse) error
+	grpc.ServerStream
+}
+
+type filmServiceListFilmServer struct {
+	grpc.ServerStream
+}
+
+func (x *filmServiceListFilmServer) Send(m *ListFilmResponse) error {
+	return x.ServerStream.SendMsg(m)
+}
+
 // FilmService_ServiceDesc is the grpc.ServiceDesc for FilmService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -99,7 +285,29 @@ var FilmService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "CreateFilm",
 			Handler:    _FilmService_CreateFilm_Handler,
 		},
+		{
+			MethodName: "GetFilm",
+			Handler:    _FilmService_GetFilm_Handler,
+		},
+		{
+			MethodName: "UpvoteFilm",
+			Handler:    _FilmService_UpvoteFilm_Handler,
+		},
+		{
+			MethodName: "DownvoteFilm",
+			Handler:    _FilmService_DownvoteFilm_Handler,
+		},
+		{
+			MethodName: "DeleteFilm",
+			Handler:    _FilmService_DeleteFilm_Handler,
+		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ListFilm",
+			Handler:       _FilmService_ListFilm_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "film.proto",
 }

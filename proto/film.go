@@ -41,3 +41,23 @@ func (f *FilmServer) CreateFilm(_ context.Context, message *CreateFilmMessage) (
 
 	return &CreateFilmResponse{Film: film}, nil
 }
+
+func (f *FilmServer) GetFilm(_ context.Context, message *GetFilmMessage) (*GetFilmResponse, error) {
+	panic("implement me")
+}
+
+func (f *FilmServer) UpvoteFilm(_ context.Context, message *UpvoteFilmMessage) (*UpvoteFilmResponse, error) {
+	panic("implement me")
+}
+
+func (f *FilmServer) DownvoteFilm(_ context.Context, message *DownvoteFilmMessage) (*DownvoteFilmResponse, error) {
+	panic("implement me")
+}
+
+func (f *FilmServer) DeleteFilm(_ context.Context, message *DeleteFilmMessage) (*DeleteFilmResponse, error) {
+	panic("implement me")
+}
+
+func (f *FilmServer) ListFilm(message *ListFilmMessage, server FilmService_ListFilmServer) error {
+	panic("implement me")
+}
