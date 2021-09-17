@@ -21,7 +21,7 @@ type FilmServer struct {
 
 func (f *FilmServer) mustEmbedUnimplementedFilmServiceServer() {}
 
-func (f *FilmServer) CreateFilm(_ context.Context, message *filmpb.CreateFilmMessage) (*filmpb.CreateFilmResponse, error) {
+func (f *FilmServer) CreateFilm(ctx context.Context, message *filmpb.CreateFilmMessage) (*filmpb.CreateFilmResponse, error) {
 
 	film := message.GetFilm()
 
@@ -30,6 +30,12 @@ func (f *FilmServer) CreateFilm(_ context.Context, message *filmpb.CreateFilmMes
 		Upvotes:   film.GetUpvotes(),
 		Downvotes: film.GetDownvotes(),
 		Score:     film.GetScore(),
+	}
+
+	exists := f.Collection.FindOne(ctx, bson.M{"name": data.Name})
+
+	if exists.Err() == nil {
+		return nil, status.Errorf(codes.AlreadyExists, fmt.Sprintf("Already exists a film with specified name"))
 	}
 
 	result, err := f.Collection.InsertOne(f.DbCtx, &data)
