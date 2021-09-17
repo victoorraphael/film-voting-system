@@ -25,6 +25,14 @@ func (f *FilmServer) CreateFilm(ctx context.Context, message *filmpb.CreateFilmM
 
 	film := message.GetFilm()
 
+	if film.GetName() == "" {
+		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Name cannot be empty!"))
+	}
+
+	if film.GetId() != "" || film.GetScore() != 0 || film.GetDownvotes() != 0 || film.GetUpvotes() != 0 {
+		return nil, status.Errorf(codes.InvalidArgument, fmt.Sprintf("Film must be created only with name e votes equals to zero!"))
+	}
+
 	data := filmpb.Film{
 		Name:      film.GetName(),
 		Upvotes:   film.GetUpvotes(),
