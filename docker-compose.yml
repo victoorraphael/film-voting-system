@@ -8,10 +8,14 @@ services:
       dockerfile: Dockerfile.client
     ports:
       - 4000:4000
+    links:
+      - server
     networks:
       - app-connect
     depends_on:
       - server
+    environment:
+      SERVER: 'server:8000'
   server:
     container_name: film-voting-server
     hostname: film-voting-server
@@ -22,8 +26,8 @@ services:
       - 8000:8000
     networks:
       - app-connect
-    environment:
-      DBCN: 'mongodb+srv://victorraphael:cypress001001@cluster0.55bz7.mongodb.net/filmVoting?retryWrites=true&w=majority'
+    env_file:
+      - .env
 networks:
   app-connect:
     driver: bridge

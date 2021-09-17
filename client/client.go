@@ -9,6 +9,7 @@ import (
 	"io"
 	"log"
 	"net/http"
+	"os"
 	"time"
 )
 
@@ -16,7 +17,7 @@ var filmClient filmpb.FilmServiceClient
 
 func main() {
 	var conn *grpc.ClientConn
-	conn, err := grpc.Dial(":8000", grpc.WithInsecure())
+	conn, err := grpc.Dial(os.Getenv("SERVER"), grpc.WithInsecure())
 	if err != nil {
 		log.Fatalf("Could not connect to server on port 8000: %v", err)
 	}
