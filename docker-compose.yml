@@ -26,8 +26,6 @@ services:
       - 8000:8000
     networks:
       - app-connect
-    env_file:
-      - .env
 networks:
   app-connect:
     driver: bridge
