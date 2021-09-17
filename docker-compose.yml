@@ -1,0 +1,29 @@
+version: '3'
+services:
+  client:
+    container_name: film-voting-client
+    hostname: film-voting-client
+    build:
+      context: .
+      dockerfile: Dockerfile.client
+    ports:
+      - 4000:4000
+    networks:
+      - app-connect
+    depends_on:
+      - server
+  server:
+    container_name: film-voting-server
+    hostname: film-voting-server
+    build:
+      context: .
+      dockerfile: Dockerfile.server
+    ports:
+      - 8000:8000
+    networks:
+      - app-connect
+    environment:
+      DBCN: 'mongodb+srv://victorraphael:cypress001001@cluster0.55bz7.mongodb.net/filmVoting?retryWrites=true&w=majority'
+networks:
+  app-connect:
+    driver: bridge

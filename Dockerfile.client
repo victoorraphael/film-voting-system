@@ -1,0 +1,30 @@
+FROM golang:1.16-alpine AS builder
+
+ENV GO111MODULE on
+
+EXPOSE 4000
+
+RUN apk update && apk add bash ca-certificates git gcc g++ libc-dev
+
+RUN mkdir /film-voting-client
+RUN mkdir -p /film-voting-client/proto
+
+WORKDIR /film-voting-client
+
+COPY ./proto/film.pb.go /film-voting-client/proto
+COPY ./proto/film_grpc.pb.go /film-voting-client/proto
+COPY ./client/client.go /film-voting-client
+COPY ./db /film-voting-client/db
+COPY ./service /film-voting-client/service
+COPY ./models /film-voting-client/models
+
+COPY go.mod .
+COPY go.sum .
+
+#RUN go get -u
+RUN go mod tidy
+
+RUN go build -o film-voting-client .
+#RUN CGO_ENABLED=0 GOOS=linux go build . && chmod +x ./film-voting-client
+#CMD ./film-voting-client
+ENTRYPOINT ["./film-voting-client"]
