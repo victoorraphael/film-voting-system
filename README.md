@@ -1,4 +1,4 @@
-#Film Voting Plataform
+# Film Voting Plataform
 
 Rank system where the user can upvote your favorites films, downvote other ones and add films
 
